@@ -16,7 +16,7 @@ import plotly.express as px
 
 # Configuração inicial da aplicação Streamlit
 st.set_page_config(page_title="Balanceador de Tarefas", layout="wide")
-st.title("Análise e Balanceamento de Carga por Função")
+st.title("Análise e Balanceamento de Carga Horária por Função")
 
 # Upload de arquivo CSV ou Excel contendo as tarefas
 uploaded_file = st.file_uploader("Envie um arquivo CSV com as tarefas", type=["csv", "xlsx"])
