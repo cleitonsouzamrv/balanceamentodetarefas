@@ -9,7 +9,7 @@ import plotly.express as px
 import datetime
 
 st.set_page_config(page_title="Balanceador de Tarefas", layout="wide")
-st.title("⚖️ Análise e Balanceamento de Carga por Categoria")
+st.title("📊⚖️ Análise e Balanceamento de Carga Horária por Categoria")
 
 uploaded_file = st.file_uploader("Envie um arquivo Excel com as tarefas", type=["xlsx", "csv"])
 if uploaded_file:
@@ -19,7 +19,7 @@ if uploaded_file:
         df = pd.read_csv(uploaded_file)
 
     st.subheader("Tarefas Recebidas")
-    st.dataframe(df.head(31))
+    st.dataframe(df)
 
     df['CATEGORIA'] = df['CATEGORIA'].fillna('Não Informado')
 
@@ -51,6 +51,7 @@ if uploaded_file:
             return t.hour + t.minute / 60 + t.second / 3600
         return 0
 
+    #Coluna utilizada para cálculo de carga horária.
     df['duracao_horas'] = df['C.H ATUAL (total para o serviço executado)'].apply(tempo_para_horas)
 
     tarefas_sem_frequencia = df[df['FREQUÊNCIA'].isna()].copy()
@@ -80,6 +81,10 @@ if uploaded_file:
     ).reindex(todas_categorias).fillna(0).reset_index()
 
     carga_por_categoria['media_diaria'] = carga_por_categoria['horas_semanais'] / 5
+    # Arredondar as colunas numéricas para 2 casas decimais
+    colunas_para_arredondar = ['horas_semanais', 'horas_mensais', 'horas_anuais', 'media_diaria']
+    carga_por_categoria[colunas_para_arredondar] = carga_por_categoria[colunas_para_arredondar].round(2)
+
 
     st.subheader("Defina os limites máximos de carga horária")
     limite_diario = st.number_input("Limite diário por categoria (h)", min_value=1, value=9)
@@ -128,7 +133,7 @@ if uploaded_file:
         x='CATEGORIA',
         y='horas_semanais',
         color=carga_por_categoria['horas_semanais'] > limite_semanal,
-        color_discrete_map={True: 'orange', False: 'blue'},
+        color_discrete_map={True: 'orange', False: 'green'},
         labels={'horas_semanais': 'Horas Semanais', 'CATEGORIA': 'Categoria'},
         title='Carga por Categoria',
         hover_data=['CATEGORIA', 'horas_semanais']
@@ -153,7 +158,7 @@ if uploaded_file:
             categorias_ociosas,
             x='CATEGORIA',
             y='horas_semanais',
-            color_discrete_sequence=['green'],
+            color_discrete_sequence=['gray'],
             labels={'horas_semanais': 'Horas Semanais', 'CATEGORIA': 'Categoria'},
             title='Categorias Ociosas',
             hover_data=['CATEGORIA', 'horas_semanais']
